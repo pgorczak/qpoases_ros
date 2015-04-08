@@ -4,8 +4,9 @@ include(ExternalProject)
 ExternalProject_Add(qpoases_svn
   PREFIX qpoases_svn
   SVN_REPOSITORY https://projects.coin-or.org/svn/qpOASES/trunk
-  SVN_REVISION -r 112
+  SVN_REVISION -r 113
   SVN_TRUST_CERT 1
+  PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/linker_opts.diff
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
 )
@@ -45,6 +46,8 @@ set(qpOASES_SRC
 # the files listed above are present when qpoases_svn (i.e. getting source files) is completed
 add_custom_command(OUTPUT ${qpOASES_SRC}
   DEPENDS qpoases_svn)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_COPYRIGHT__ -O3 -finline-functions")
 
 # c++ library
 add_library(qpOASES

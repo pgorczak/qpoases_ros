@@ -1,0 +1,13 @@
+Index: interfaces/python/setup.py
+===================================================================
+--- interfaces/python/setup.py	(revision 112)
++++ interfaces/python/setup.py	(working copy)
+@@ -50,7 +50,7 @@
+     os.path.join(BASEDIR, 'include', 'qpOASES'),
+     np.get_include()]
+ extra_params['extra_compile_args'] = ["-O2", "-Wno-unused-variable"]
+-extra_params['extra_link_args'] = ["-Wl,-O1", "-Wl,--as-needed"]
++extra_params['extra_link_args'] = ["-Wl,--as-needed"]
+ 
+ extra_params = extra_params.copy()
+ extra_params['libraries'] = ['qpOASES']
