@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.8.8)
 
+# Stable 3.0 seems to be the only working one
 include(ExternalProject)
 ExternalProject_Add(qpoases_svn
   PREFIX qpoases_svn
-  SVN_REPOSITORY https://projects.coin-or.org/svn/qpOASES/trunk
-  SVN_REVISION -r 113
+  SVN_REPOSITORY https://projects.coin-or.org/svn/qpOASES/stable/3.0
   SVN_TRUST_CERT 1
-  PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/linker_opts.diff
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
 )
@@ -22,7 +21,7 @@ catkin_package(
 
 ExternalProject_Get_Property(qpoases_svn SOURCE_DIR)
 
-include_directories(${SOURCE_DIR}/include)
+# include_directories(${SOURCE_DIR}/include)
 
 # "We do not recommend using GLOB to collect a list of source files from your source tree."
 set(qpOASES_SRC
@@ -43,20 +42,33 @@ set(qpOASES_SRC
   ${SOURCE_DIR}/src/SubjectTo.cpp
   ${SOURCE_DIR}/src/Utils.cpp
 )
+
+set(qpOASES_PYTHON_SRC
+  ${SOURCE_DIR}/interfaces/python/qpoases.pxd
+  ${SOURCE_DIR}/interfaces/python/qpoases.pyx
+)
+
 # the files listed above are present when qpoases_svn (i.e. getting source files) is completed
-add_custom_command(OUTPUT ${qpOASES_SRC}
+add_custom_command(OUTPUT ${qpOASES_SRC} ${qpOASES_PYTHON}
   DEPENDS qpoases_svn)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_COPYRIGHT__ -O3 -finline-functions")
-
-# c++ library
-add_library(qpOASES
-  ${qpOASES_SRC})
-
-# python wrappers
+# Custom build Python wrappers
 add_custom_target(qpOASES_Python ALL
-  COMMAND python setup.py build_ext --library-dirs ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_LIB_DESTINATION} --build-lib ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
-  WORKING_DIRECTORY ${SOURCE_DIR}/interfaces/python
+  COMMAND python setup.py build_ext --include-dirs ${SOURCE_DIR}/include ${INCLUDE_DIRECTORIES} --build-lib ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION} --build-temp ${CMAKE_CURRENT_BINARY_DIR} --sources ${qpOASES_PYTHON_SRC} ${qpOASES_SRC}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS qpoases_svn
   COMMENT "Building Python wrappers."
 )
-add_dependencies(qpOASES_Python qpOASES)
+
+# Tell CMake about the build output
+set(qpOASES_PYTHON_LIB
+  ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}/qpoases.so
+)
+
+add_custom_command(OUTPUT ${qpOASES_PYTHON_LIB}
+  DEPENDS qpOASES_Python)
+
+# Install
+install(FILES ${qpOASES_PYTHON_LIB}
+  DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION}
+)
