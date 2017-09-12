@@ -49,7 +49,7 @@ set(qpOASES_PYTHON_SRC
 )
 
 # the files listed above are present when qpoases_svn (i.e. getting source files) is completed
-add_custom_command(OUTPUT ${qpOASES_SRC} ${qpOASES_PYTHON}
+add_custom_command(OUTPUT ${qpOASES_SRC} ${qpOASES_PYTHON_SRC}
   DEPENDS qpoases_svn)
 
 # Custom build Python wrappers
