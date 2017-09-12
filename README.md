@@ -18,9 +18,9 @@ There is also a
 #### C++ library
 
 *Currently useless. Catkin seems to expect all include directories
-*(`INCLUDE_DIRS` in `catkin_package`) to be relative to the package root
-*(`CMAKE_CURRENT_SOURCE_DIR`). QpOASES actual files get checked out into the
-*build tree though.*
+(`INCLUDE_DIRS` in `catkin_package`) to be relative to the package root
+(`CMAKE_CURRENT_SOURCE_DIR`). QpOASES actual files get checked out into the
+build tree though.*
 
 #### Python library
 
